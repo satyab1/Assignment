@@ -10,6 +10,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import com.assignment.repository.ProductRepository;
 
 @Service
 public class ProductService {
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ProductService.class);
 
 	@Autowired
 	ProductRepository productRepository;
@@ -30,27 +34,28 @@ public class ProductService {
 
 	@PostConstruct
 	private void postConstruct() {
+		LOGGER.info("Loading CSV file activity started .....");
 		List<Product> products = csvreader.processInputFile("data.csv");
 		for (Product product : products) {
 			productRepository.save(product);
 		}
+		LOGGER.info("CSV file has been saved successfully in-memory database ");
 	}
 
 	// getting all product records
-
 	public List<Product> getAllProducts() {
 		List<Product> products = new ArrayList<Product>();
 		try {
 			productRepository.findAll().forEach(product -> products.add(product));
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			LOGGER.error(e.getMessage());
 		}
 		return products;
 	}
 
 	/* reading input request params and setting to query */
 	public List<Product> getFilteredproducts(Map<String, String> allParams) {
-
+		LOGGER.info("Regading input parameters from request..");
 		String type = null;
 		double min_price = 0;
 		double max_price = 0;
@@ -73,12 +78,15 @@ public class ProductService {
 	}
 
 	/*
-	 * Using predicates and Criteria API ti filter data from database based on
+	 * Using predicates and Criteria API to filter data from database based on
 	 * inputs provided in request object
+	 * Using Criteria API we build query dynamically and execute and retrive data from database .
 	 */
 	public List<Product> findByLikeAndBetweenCriteria(String type, double min_price, double max_price, String city,
 			String properties) {
-
+		
+		LOGGER.info("Regading data from database according to input params..");
+		
 		return productRepository.findAll(new Specification<Product>() {
 
 			public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
@@ -107,5 +115,6 @@ public class ProductService {
 			}
 		});
 	}
+
 
 }

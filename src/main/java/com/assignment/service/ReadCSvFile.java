@@ -8,12 +8,16 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.assignment.model.Product;
 
 @Component
 public class ReadCSvFile {
+	
+	private static final Logger LOGGER = LoggerFactory.getLogger(ReadCSvFile.class);
 
 	private Function<String, Product> mapToItem = (line) -> {
 		String[] p = line.split(",");
@@ -29,7 +33,7 @@ public class ReadCSvFile {
 
 	/*
 	 * Reading csv file column wise and setting to Product model Used UTF-8 because
-	 * CSV file having German umlaut (ä, ö, ü)
+	 * CSV file having German umlaut (ï¿½, ï¿½, ï¿½)
 	 */
 
 	public List<Product> processInputFile(String inputFilePath) {
@@ -39,7 +43,7 @@ public class ReadCSvFile {
 			inputList = br.lines().skip(1).map(mapToItem).collect(Collectors.toList());
 			br.close();
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
+			LOGGER.error(e.getMessage());
 		}
 		return inputList;
 	}
