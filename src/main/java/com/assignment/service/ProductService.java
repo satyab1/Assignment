@@ -74,19 +74,29 @@ public class ProductService {
 			if (entry.getKey().equalsIgnoreCase("properties"))
 				properties = entry.getValue();
 		}
-		return findByLikeAndBetweenCriteria(type, min_price, max_price, city, properties);
+		List<Product> products = findByLikeAndBetweenCriteria(type, min_price, max_price, city, properties);
+		removingSpecialCharcters(products);
+		return products;
+	}
+
+	// trimming special characters in response body
+	public void removingSpecialCharcters(List<Product> products) {
+		for (Product product : products) {
+			product.setStore_address(product.getStore_address().substring(1, product.getStore_address().length() - 1));
+		}
+
 	}
 
 	/*
 	 * Using predicates and Criteria API to filter data from database based on
-	 * inputs provided in request object
-	 * Using Criteria API we build query dynamically and execute and retrive data from database .
+	 * inputs provided in request object Using Criteria API we build query
+	 * dynamically and execute and retrive data from database .
 	 */
 	public List<Product> findByLikeAndBetweenCriteria(String type, double min_price, double max_price, String city,
 			String properties) {
-		
+
 		LOGGER.info("Regading data from database according to input params..");
-		
+
 		return productRepository.findAll(new Specification<Product>() {
 
 			public Predicate toPredicate(Root<Product> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
@@ -115,6 +125,5 @@ public class ProductService {
 			}
 		});
 	}
-
 
 }
