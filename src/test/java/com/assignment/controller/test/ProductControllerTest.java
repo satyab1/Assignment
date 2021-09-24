@@ -46,11 +46,43 @@ public class ProductControllerTest {
 	void getFilteredProductsWithProperties() throws Exception {
 
 		mockMvc.perform(get("/product?type=phone&properties=guld").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isOk()).andExpect(jsonPath("$[0].properties", containsString("guld")))
+				.andExpect(status().isOk()).andExpect(jsonPath("$[0].type", containsString("phone")))
 				.andExpect(jsonPath((String) "$[0].properties", containsString("guld")));
 	}
 
-	// simple test case to getting records of procuts
+	@Test
+	void validatingResultWithStatusCode() throws Exception {
+
+		mockMvc.perform(
+				get("/product?type=subscription&max_price=1000&city=Stockholm").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is2xxSuccessful());
+	}
+
+	@Test
+	void validatingFailedStatusCode() throws Exception {
+
+		mockMvc.perform(get("/product?type=phone&properties=guldee").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError());
+	}
+
+	@Test
+	void validatingNoResultMessage() throws Exception {
+
+		mockMvc.perform(
+				get("/product?type=subscription&max_price=1000&city=Germany").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError()).andReturn().toString().contains("Record Not Found");
+	}
+
+	@Test
+	void validatingNoResultEndMessage() throws Exception {
+
+		mockMvc.perform(
+				get("/product?type=subscription&max_price=1000&city=Germany").contentType(MediaType.APPLICATION_JSON))
+				.andExpect(status().is4xxClientError()).andReturn().toString()
+				.contains("No records found for input params ..");
+	}
+
+	// simple test case to getting records of products
 	@Test
 	void getAllProducts() throws Exception {
 

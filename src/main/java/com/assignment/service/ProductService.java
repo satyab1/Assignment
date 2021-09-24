@@ -98,10 +98,10 @@ public class ProductService {
 					predicates.add(criteriaBuilder.between(root.get("price"), min_price, max_price));
 				}
 				if (min_price != 0 && max_price == 0) {
-					predicates.add(criteriaBuilder.lessThan(root.get("price"), min_price));
+					predicates.add(criteriaBuilder.greaterThan(root.get("price"), min_price));
 				}
 				if (min_price == 0 && max_price != 0) {
-					predicates.add(criteriaBuilder.greaterThan(root.get("price"), max_price));
+					predicates.add(criteriaBuilder.lessThan(root.get("price"), max_price));
 				}
 				if (city != null) {
 					predicates
